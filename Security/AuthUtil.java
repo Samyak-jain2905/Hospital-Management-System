@@ -1,6 +1,7 @@
 package com.samyaksProject.HospitalManagement.Security;
 
 import com.samyaksProject.HospitalManagement.entity.User;
+import com.samyaksProject.HospitalManagement.entity.type.AuthProviderType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -38,4 +39,15 @@ public class AuthUtil {
                 .getPayload();
         return claims.getSubject();
     }
-}
+
+    public AuthProviderType getProviderTypeFromRegistrationId(String registrationId){
+        return switch (registrationId.toLowerCase()) {
+        case "google" -> AuthProviderType.GOOGLE;
+        case "github" -> AuthProviderType.GITHUB;
+        case "facebook" -> AuthProviderType.FACEBOOK;
+            default -> throw new IllegalArgumentException("Unsupported OAuth provider :"+registrationId);
+        };
+        }
+    }
+
+

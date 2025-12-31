@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,5 +46,12 @@ public class AuthService {
                 .password(passwordEncoder.encode(signupRequestDto.getPassword()))
                 .build());
         return new SignUpResponseDto(user.getId(),user.getUsername());
+    }
+
+    public void handleOAuth2loginrequest(OAuth2User oAuth2User, String registrationid) {
+        //  fetch providerType and providerId
+        // save the providertype and provider id info with user
+        //if the user has an account : directly login
+        // otherwise , first signup and then login
     }
 }
