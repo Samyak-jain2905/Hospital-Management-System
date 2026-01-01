@@ -22,6 +22,7 @@ public class webSecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthFilter jwtAuthFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity
@@ -33,10 +34,13 @@ public class webSecurityConfig {
                         .anyRequest()
                         .authenticated()
                 )
+
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login(oAuth2 -> oAuth2.failureHandler(
                     (request, response, exception) -> {
-                        log.error("OAuth2 error :{} ",exception.getMessage());
+                        log.error("OAuth2 error :{} ",exception.getMessage(),exception);
+                        response.sendRedirect("/login?error=" + exception.getMessage());
+
                     }
                 )
                                 .successHandler(oAuth2SuccessHandler)

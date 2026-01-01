@@ -15,7 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "app_user")
+@Table(name = "app_user",indexes = {
+        @Index(name="idx_provider_id_provider_type", columnList = "providerId,providerType")
+})
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +27,9 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
-    private String providerid;
+    private String providerId;
     @Enumerated(EnumType.STRING)
-    private AuthProviderType authProviderType;
+    private AuthProviderType providerType;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
