@@ -3,9 +3,11 @@ package com.samyaksProject.HospitalManagement.Controller;
 
 
 import com.samyaksProject.HospitalManagement.DTO.AppointmentResponseDto;
+import com.samyaksProject.HospitalManagement.entity.User;
 import com.samyaksProject.HospitalManagement.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,9 +25,10 @@ import java.util.List;
         private final AppointmentService appointmentService;
 
         @GetMapping("/{doctorId}/appointments")
-        public ResponseEntity<List<AppointmentResponseDto>> getAllAppointmentsOfDoctor(@PathVariable Long doctorId) {
-            List<AppointmentResponseDto> appointments = appointmentService.getAppointmentsByDoctorId(doctorId);
-            return ResponseEntity.ok(appointments);
+        public ResponseEntity<List<AppointmentResponseDto>> getAllAppointmentsOfDoctor() {
+
+            User user= (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return ResponseEntity.ok(appointmentService.getAppointmentsByDoctorId(user.getId()));
         }
     }
 

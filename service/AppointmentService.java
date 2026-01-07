@@ -11,6 +11,8 @@ import com.samyaksProject.HospitalManagement.repository.PatientRepository;
 import jakarta.transaction.Transactional;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@EnableWebSecurity
 
 public class AppointmentService {
     private final PatientRepository patientRepository;
@@ -26,6 +29,7 @@ public class AppointmentService {
 
 
     @Transactional
+
     public Appointment createNewAppointment(Appointment appointment, Long doctorid,Long patientid){
 
         Doctor doctor=doctorRepository.findById(doctorid).orElseThrow();
@@ -41,6 +45,8 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
     @Transactional
+    @PreAuthorize("hasAuthority('appointment:write') or #doctorId == authentication.principle.id")
+
     public Appointment reAssignAppiontmentToAnotherDoctor(Long appointmentId,Long doctorId){
        Appointment appointment=appointmentRepository.findById(appointmentId).orElseThrow();
        Doctor doctor=doctorRepository.findById(doctorId).orElseThrow();
@@ -51,6 +57,8 @@ public class AppointmentService {
 
         return appointment;
     }
+
+    @PreAuthorize("hasRole('ADMIN') AND (hasRole('DOCTOR') || #doctorId == authentication.principle.id)")
     public List<AppointmentResponseDto> getAppointmentsByDoctorId(Long doctorId) {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new RuntimeException("Doctor not found with id: " + doctorId));
@@ -68,7 +76,7 @@ public class AppointmentService {
                     doctorDto.setId(doctor.getId());
                     doctorDto.setName(doctor.getName());
                     doctorDto.setSpecialization(doctor.getSpecialization());
-                    doctorDto.setEmail(doctor.getEmial()); // typo in entity is "emial", so use that getter!
+                    doctorDto.setEmail(doctor.getEmail()); // typo in entity is "emial", so use that getter!
                     dto.setDoctor(doctorDto);
 
                     return dto;

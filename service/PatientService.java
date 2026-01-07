@@ -46,7 +46,7 @@ public class PatientService {
                             appointment.getDoctor().getId(),
                             appointment.getDoctor().getName(),
                             appointment.getDoctor().getSpecialization(),
-                            appointment.getDoctor().getEmial() // careful: typo in Doctor entity
+                            appointment.getDoctor().getEmail() // careful: typo in Doctor entity
                     );
                     dto.setDoctor(doctorDto);
 

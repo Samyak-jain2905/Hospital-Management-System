@@ -2,6 +2,7 @@ package com.samyaksProject.HospitalManagement.Controller;
 
 import com.samyaksProject.HospitalManagement.DTO.LoginRequestDto;
 import com.samyaksProject.HospitalManagement.DTO.LoginResponseDto;
+import com.samyaksProject.HospitalManagement.DTO.SignUpRequestDTO;
 import com.samyaksProject.HospitalManagement.DTO.SignUpResponseDto;
 import com.samyaksProject.HospitalManagement.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class AuthController {
       return ResponseEntity.ok(authService.login(loginRequestDto));
     }
     @PostMapping("/signup")
-    public ResponseEntity<SignUpResponseDto> signup(@RequestBody LoginRequestDto signupRequestDto){
+    public ResponseEntity<SignUpResponseDto> signup(@RequestBody SignUpRequestDTO signupRequestDto){
         return ResponseEntity.ok(authService.signup(signupRequestDto));
     }
 }

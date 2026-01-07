@@ -3,10 +3,14 @@ package com.samyaksProject.HospitalManagement.service;
 import com.samyaksProject.HospitalManagement.DTO.LoginRequestDto;
 import com.samyaksProject.HospitalManagement.DTO.LoginResponseDto;
 
+import com.samyaksProject.HospitalManagement.DTO.SignUpRequestDTO;
 import com.samyaksProject.HospitalManagement.DTO.SignUpResponseDto;
 import com.samyaksProject.HospitalManagement.Security.AuthUtil;
+import com.samyaksProject.HospitalManagement.entity.Patient;
 import com.samyaksProject.HospitalManagement.entity.User;
 import com.samyaksProject.HospitalManagement.entity.type.AuthProviderType;
+import com.samyaksProject.HospitalManagement.entity.type.RoleType;
+import com.samyaksProject.HospitalManagement.repository.PatientRepository;
 import com.samyaksProject.HospitalManagement.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +24,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -28,6 +34,7 @@ public class AuthService {
     private final AuthUtil authUtil;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PatientRepository patientRepository;
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         Authentication authentication=authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(),loginRequestDto.getPassword()));
@@ -37,7 +44,7 @@ public class AuthService {
     }
 
     //login controller
-    public User signUpInternal(LoginRequestDto signupRequestDto,AuthProviderType providerType,String providerId){
+    public User signUpInternal(SignUpRequestDTO signupRequestDto,AuthProviderType providerType,String providerId){
         User user =
                 userRepository.findByUsername(signupRequestDto.getUsername())
                         .orElse(null);
@@ -49,15 +56,22 @@ public class AuthService {
                 .username(signupRequestDto.getUsername())
                .providerId(providerId)
                .providerType(providerType)
+               .roles(signupRequestDto.getRoles()) //Set.of(RoleType.PATIENT)
                 .build();
         if(providerType==AuthProviderType.EMAIL){
             user.setPassword(passwordEncoder.encode(signupRequestDto.getPassword()));
         }
-
-        return userRepository.save(user);
+        user = userRepository.save(user);
+        Patient patient=Patient.builder()
+                        .name(signupRequestDto.getName())
+                        .email(signupRequestDto.getUsername())
+                        .user(user)
+                        .build();
+        patientRepository.save(patient);
+        return user;
     }
     @PreAuthorize("permitAll()")
-    public SignUpResponseDto signup(LoginRequestDto signupRequestDto) {
+    public SignUpResponseDto signup(SignUpRequestDTO signupRequestDto) {
        User user=signUpInternal(signupRequestDto,AuthProviderType.EMAIL,null);
         return new SignUpResponseDto(user.getId(),user.getUsername());
     }
@@ -73,12 +87,13 @@ public class AuthService {
 
         User user=userRepository.findByProviderIdAndProviderType(providerId,providerType).orElse(null);
         String email=oAuth2User.getAttribute("email");
+        String name=oAuth2User.getAttribute("name");
 
         User emailUser=userRepository.findByUsername(email).orElse(null);
 
         if(user ==null && emailUser ==null){
             String username=authUtil.determinUsernameFromOAuth2User(oAuth2User,registrationid,providerId);
-                user=signUpInternal(new LoginRequestDto(username,null),providerType,providerId);
+                user=signUpInternal(new SignUpRequestDTO(username,null,name,Set.of(RoleType.PATIENT)),providerType,providerId);
         }
         else if(user !=null){
             if(email !=null && !email.isBlank() && !email.equals(user.getUsername())){

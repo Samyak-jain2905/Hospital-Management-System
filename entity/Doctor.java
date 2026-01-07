@@ -3,10 +3,7 @@ package com.samyaksProject.HospitalManagement.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 
@@ -21,10 +18,15 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne
+    @MapsId
+    private User user;
 
     @Column(nullable = false,length = 50)
     private String name;
@@ -32,8 +34,10 @@ public class Doctor {
     @Column(length = 50)
     private String specialization;
 
-    @Column(nullable = false,unique = true,length = 100)
-    private String emial;
+    @Column(unique = true,length = 100)
+    private String email;
+
+
 
     @ManyToMany(mappedBy = "doctors")
 
