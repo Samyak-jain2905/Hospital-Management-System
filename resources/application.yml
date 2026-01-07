@@ -1,0 +1,9 @@
+spring.security.oauth2:
+      client:
+        registration:
+          google:
+            client-id: your client id
+            client-secret: your client secret
+          github:
+            client-id: your client id
+            client-secret: your client secret
